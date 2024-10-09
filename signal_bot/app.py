@@ -41,6 +41,7 @@ async def lifespan(app: FastAPI):
         stop_event.set()
         task.cancel()
         await task
+        await bot.session.close()
 
 
 app = FastAPI(lifespan=lifespan)
