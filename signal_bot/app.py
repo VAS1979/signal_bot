@@ -1,4 +1,5 @@
 """ Точка входа в приложение """
+
 import os
 import asyncio
 import logging
@@ -9,9 +10,9 @@ from fastapi.requests import Request
 import uvicorn
 from dotenv import load_dotenv
 
-from src.utils import run_background_tasks, stop_event
-from src.bot.app_bot import bot, dp
-from src.api.routers import router
+from signal_bot.start_program_cycle import run_background_tasks, stop_event
+from signal_bot.bot.app_bot import bot, dp
+from signal_bot.api.routers import router
 
 load_dotenv()
 
@@ -29,13 +30,13 @@ async def lifespan(app: FastAPI):
     """ Запуск фоновых задач """
     task = None
     try:
+        logger.info("Запуск цикла сопрограмм\n")
         task = asyncio.create_task(run_background_tasks())
-        logger.info("Загрузка модели базы данных")
+
         await bot.set_webhook(url=WEBHOOK_URL,
                               allowed_updates=dp.resolve_used_update_types(),
                               drop_pending_updates=True)
         yield
-        logger.info("Выгрузка модели базы данных")
         await bot.delete_webhook()
     finally:
         stop_event.set()
