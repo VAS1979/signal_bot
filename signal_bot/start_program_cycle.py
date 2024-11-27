@@ -1,12 +1,8 @@
 """ Фоновые задачи """
 import asyncio
-import logging
 
 from signal_bot.parser.parser_core import start_parsing
-
-# Настройка логов
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-logger = logging.getLogger(__name__)
+from signal_bot.config import logger
 
 # Чтобы параллельную задачу можно было грохнуть после остановки приложения.
 stop_event = asyncio.Event()

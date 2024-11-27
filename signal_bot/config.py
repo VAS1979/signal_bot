@@ -1,12 +1,31 @@
-""" Модуль конфигурации """
+""" Модуль конфигурации парсера """
 
+import os
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# токен бота
+bot_token = os.getenv("BOT_TOKEN")
+
+# IP адрес
+URL = os.getenv("URL")
+
+# порт подключения
+PORT = int(os.getenv("PORT"))
+
+# адрес эндпоинта для приема webhook
+WEBHOOK_PATH = "/webhook"
+
+# полный адрес для приема webhook
+WEBHOOK_URL = URL + WEBHOOK_PATH
 
 # путь к базе данных
 DB_PATH = "signal_bot/db/data_db.db"
 
 # период между опросами парсера в секундах
-PERIOD_BETWEEN_REQUEST = 27
+PERIOD_BETWEEN_REQUEST = 54
 
 # настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -41,6 +60,11 @@ CONVERT_TYPES = {
 OFZ_BONDS = "ofz_bonds"
 CORP_BONDS = "corp_bonds"
 SHARES = "shares"
+REQUESTED_DATA = "requested_data"
+
+# Строка создания запроса к бд по созданию таблицы REQUESTED_DATA
+REQUESTED_DATA_COLUMN = "USER_ID INTEGER, SIGNAL_TYPE STRING,\
+                        ASSET_NAME STRING, SIGNAL_PRICE REAL"
 
 # Шаблон для проверки изменений типов и наименований столбцов таблицы облигаций
 BOND_COLUMN_TEMPLATE = [

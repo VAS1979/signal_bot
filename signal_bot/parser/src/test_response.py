@@ -1,6 +1,6 @@
 """ Проверка ответов MOEX на корректность ключей словаря """
 
-from signal_bot.parser.src.config import REQUEST_KEY, REQUIRED_KEYS, logger
+from signal_bot.config import REQUEST_KEY, REQUIRED_KEYS, logger
 
 
 async def _check_keys(res, fkey):

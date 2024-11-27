@@ -1,28 +1,16 @@
 """ Точка входа в приложение """
 
-import os
 import asyncio
-import logging
 from contextlib import asynccontextmanager
 from aiogram.types import Update
 from fastapi import FastAPI
 from fastapi.requests import Request
 import uvicorn
-from dotenv import load_dotenv
 
 from signal_bot.start_program_cycle import run_background_tasks, stop_event
 from signal_bot.bot.app_bot import bot, dp
 from signal_bot.api.routers import router
-
-load_dotenv()
-
-url = os.getenv("URL")
-PORT = int(os.getenv("PORT"))
-WEBHOOK_PATH = "/webhook"
-WEBHOOK_URL = url + WEBHOOK_PATH
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-logger = logging.getLogger(__name__)
+from signal_bot.config import logger, PORT, WEBHOOK_URL, WEBHOOK_PATH
 
 
 @asynccontextmanager

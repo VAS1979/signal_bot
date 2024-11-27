@@ -2,7 +2,7 @@
 
 import aiohttp
 
-from signal_bot.parser.src.config import logger
+from signal_bot.config import logger
 from signal_bot.parser.src.test_response import check_response
 
 

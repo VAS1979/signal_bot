@@ -1,11 +1,11 @@
-""" Создание и заполнение базы данных парсером"""
+""" Создание и заполнение базы данных """
 
 import asyncio
 import aiosqlite
 import aiohttp
 
-from signal_bot.parser.src.config import (PERIOD_BETWEEN_REQUEST, logger,
-                                          SHARE_SBER_URL, TYPES_SECURITIES)
+from signal_bot.config import (PERIOD_BETWEEN_REQUEST, logger,
+                               SHARE_SBER_URL, TYPES_SECURITIES)
 from signal_bot.parser.src.requests import request_share_sber
 from signal_bot.parser.src.processor import handle_call_chain
 

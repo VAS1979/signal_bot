@@ -1,6 +1,6 @@
-""" Создание типов колок таблицы """
+""" Создание типов колонок таблицы """
 
-from signal_bot.parser.src.config import CONVERT_TYPES, logger
+from signal_bot.config import CONVERT_TYPES, logger
 
 
 async def create_column_typing(response, template):

@@ -1,15 +1,11 @@
 """ Инициализатор бота """
-import os
+
 from aiogram.client.default import DefaultBotProperties
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from dotenv import load_dotenv
 
-from .handlers import router
-
-load_dotenv()
-
-bot_token = os.getenv("BOT_TOKEN")
+from bot.handlers.main_handlers import router
+from signal_bot.config import bot_token
 
 bot = Bot(token=bot_token,
           default=DefaultBotProperties(parse_mode=ParseMode.HTML))
