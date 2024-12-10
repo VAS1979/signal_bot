@@ -41,7 +41,7 @@ async def write_finished_data(column_count, table_name, securities_list):
             async with db_connection.cursor() as cursor:
 
                 insert_query = f"INSERT INTO {table_name} VALUES \
-                    ({','.join(['?'] * column_count)})"
+                ({','.join(['?'] * column_count)})"
 
                 await cursor.execute(f"DELETE FROM {table_name}")
                 await db_connection.commit()
@@ -63,7 +63,10 @@ async def write_user_signal(table_name, data_list):
         async with aiosqlite.connect(DB_PATH) as db_connection:
             async with db_connection.cursor() as cursor:
 
-                insert_query = f"INSERT INTO {table_name} VALUES (?, ?, ?, ?)"
+                column_count = len(data_list)
+
+                insert_query = f"INSERT INTO {table_name} VALUES \
+                ({','.join(['?'] * column_count)})"
 
                 await cursor.execute(insert_query, data_list)
                 await db_connection.commit()
@@ -95,6 +98,36 @@ async def make_selection_of_tickers(table_name):
                 logger.info("Записи успешно считаны из таблицы %s.\
 Количество тикеров: %s", table_name, len(tickers))
                 return tickers
+
+    except aiosqlite.Error as m:
+        logger.error("Ошибка при подключении к базе данных или \
+выполнении запроса: %s", m)
+        return None
+
+
+async def get_user_signal(table_name, user_id):
+    """ Делает выборку сигналов пользователя
+    и формирует словарь с вложенными списками """
+
+    signals = []
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db_connection:
+            async with db_connection.cursor() as cursor:
+
+                select_query = f"SELECT * FROM {table_name} \
+                    WHERE USER_ID = {user_id}"
+
+                await cursor.execute(select_query)
+                rows = await cursor.fetchall()
+                await db_connection.commit()
+
+                for row in rows:
+                    signals.append(row)
+
+                logger.info("Записи успешно считаны из таблицы %s.\
+Количество тикеров: %s", table_name, len(signals))
+                return signals
 
     except aiosqlite.Error as m:
         logger.error("Ошибка при подключении к базе данных или \

@@ -1,9 +1,26 @@
 """ Содержит служебные функции пакета bot """
 
-from signal_bot.config import logger
-from signal_bot.repositories import make_selection_of_tickers
+from datetime import datetime
 
-action_list = ["buy", "sell"]
+from signal_bot.config import (REQUESTED_DATA, REQUESTED_DATA_COLUMN,
+                               TYPE_LIST, logger)
+from signal_bot.repositories import (create_db_tables, get_user_signal,
+                                     make_selection_of_tickers,
+                                     write_user_signal)
+
+
+async def get_datetime():
+    """ Запрашивает текущую дату и время """
+    current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return current_datetime
+
+
+async def check_operation_type(operation):
+    """ . """
+    if operation in TYPE_LIST:
+        return operation
+    else:
+        return None
 
 
 async def check_ticker_in_database(table_name: str, ticker: str):
@@ -11,50 +28,72 @@ async def check_ticker_in_database(table_name: str, ticker: str):
     ценной бумаги в базе данных """
     lst = await make_selection_of_tickers(table_name)
 
-    upper_ticker = ticker.upper()
     try:
-        if upper_ticker in lst:
+        if ticker in lst:
             info = "Запрашиваемый тикер %s найден в списке"
-            logger.info(info, upper_ticker)
-            return upper_ticker
+            logger.info(info, ticker)
+            return ticker
         else:
             find_error = "Запрашиваемый тикер %s отсутствует в списке"
-            logger.info(find_error, upper_ticker)
+            logger.info(find_error, ticker)
             return
 
     except Exception as m:
         logger.error("Ошибка проверки данных: %s", m)
 
 
-async def generate_user_signal(table_name, user_id, action, ticker, price):
+async def generate_user_signal(user_id, action, ticker, price):
     """ Создает список, формирующий сигнал
     пользователя для записи в бд """
-    try:
-        signal_list = []
+    signal_list = []
 
-        # добавление user_id в список
-        signal_list.append(user_id)
+    # добавляет дату и время
+    date = await get_datetime()
+    signal_list.append(date)
 
-        # добавление действия в список
-        if action in action_list:
-            signal_list.append(action)
-        else:
-            return "Некорректный сигнал"
+    # добавляет user_id в список
+    signal_list.append(user_id)
 
-        # проверка и добавление тикера
-        result = await check_ticker_in_database(table_name, str(ticker))
-        if result:
-            signal_list.append(result)
-        else:
-            return "Веден некорректный тикер "
+    # добавляет действия в список
+    signal_list.append(action)
 
-        # проверка и добавление цены
-        if isinstance(price, (float, int)):
-            signal_list.append(price)
-        else:
-            return "Некорректный ввод цены"
+    # добавляет тикер в список
+    signal_list.append(ticker)
 
-        return signal_list
+    # добавляет цену
+    signal_list.append(price)
 
-    except Exception as m:
-        logger.error("Ошибка проверки данных: %s", m)
+    return signal_list
+
+
+async def generate_final_result(user_id, action, ticker, price):
+    """ . """
+    # формирует список сигнала пользователя
+    result = await generate_user_signal(user_id, action, ticker, price)
+    # создает таблицу бд
+    await create_db_tables(REQUESTED_DATA_COLUMN, REQUESTED_DATA)
+    # сохраняет сигнал в бд
+    await write_user_signal(REQUESTED_DATA, result)
+    # формирует сообщение пользователю
+    mes1 = f'Сигнал сформирован.\nВаш id: {user_id}\n'
+    mes2 = f'Тип сигнала: {action}\n'
+    mes3 = f'Тикер: {ticker}\nЦена: {price}'
+    message = mes1 + mes2 + mes3
+
+    return message
+
+
+async def generate_signals_report(table_name, user_id):
+    """ . """
+    signal_list = await get_user_signal(table_name, user_id)
+
+    user_message = ""
+    for signal in signal_list:
+        data = f"Дата создания: {signal[0]}"
+        operation = f"Тип операции: {signal[2]}"
+        ticker = f"Тикер: {signal[3]}"
+        price = f"Цена: {str(signal[4])}"
+        mess = data + "\n" + operation + "\n" + ticker + "\n" + price + "\n\n"
+        user_message += mess
+
+    return user_message
