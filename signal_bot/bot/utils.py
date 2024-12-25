@@ -4,9 +4,9 @@ from datetime import datetime
 
 from signal_bot.config import (REQUESTED_DATA, REQUESTED_DATA_COLUMN,
                                TYPE_LIST, logger)
-from signal_bot.repositories import (create_db_tables, get_user_signal,
-                                     make_selection_of_tickers,
-                                     write_user_signal)
+from signal_bot.repositories import (create_db_tables, delete_string_db,
+                                     get_user_signal, write_user_signal,
+                                     make_selection_of_tickers)
 
 
 async def get_datetime():
@@ -87,6 +87,9 @@ async def generate_signals_report(table_name, user_id):
     """ . """
     signal_list = await get_user_signal(table_name, user_id)
 
+    if len(signal_list) == 0:
+        return "Список сигналов пуст"
+
     user_message = ""
     for signal in signal_list:
         data = f"Дата создания: {signal[0]}"
@@ -97,3 +100,15 @@ async def generate_signals_report(table_name, user_id):
         user_message += mess
 
     return user_message
+
+
+async def delete_signal(table, user_id, operation, ticker):
+    """ Удаляет строки с сигналами с заданными
+    параметрами при их наличии """
+
+    del_signal = await delete_string_db(table, user_id, operation, ticker)
+
+    if del_signal:
+        return del_signal
+    else:
+        return "Нет сигналов с заданными параметрами"

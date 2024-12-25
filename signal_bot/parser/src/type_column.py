@@ -27,6 +27,7 @@ async def create_column_typing(response, template):
 
     finish_data.append(column_typing)
     finish_data.append(len(example_for_definition))
+    finish_data.append(len(response["securities"]["data"]))
 
     try:
         if list_of_columns != template:

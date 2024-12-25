@@ -32,7 +32,8 @@ async def create_db_tables(column_create: str, table_name: str,
     return None
 
 
-async def write_finished_data(column_count, table_name, securities_list):
+async def write_finished_data(column_count, string_count, table_name,
+                              securities_list):
     """ Заполняет базу данных значениями из
     полученного ответа на запрос парсера """
 
@@ -46,7 +47,7 @@ async def write_finished_data(column_count, table_name, securities_list):
                 await cursor.execute(f"DELETE FROM {table_name}")
                 await db_connection.commit()
 
-                for i in range(column_count):
+                for i in range(string_count):
                     await cursor.execute(insert_query, (securities_list[i]))
                 await db_connection.commit()
                 logger.info("Записи успешно добавлены в таблицу")
@@ -132,4 +133,31 @@ async def get_user_signal(table_name, user_id):
     except aiosqlite.Error as m:
         logger.error("Ошибка при подключении к базе данных или \
 выполнении запроса: %s", m)
+        return None
+
+
+async def delete_string_db(table, user_id, operation, ticker):
+    """ Удаляет строки с сигналами пользователя """
+    try:
+        async with aiosqlite.connect(DB_PATH) as db_connection:
+            async with db_connection.cursor() as cursor:
+
+                delete_query = f"DELETE FROM {table} WHERE USER_ID = ?\
+                    AND SIGNAL_TYPE = ? AND ASSET_NAME = ?"
+
+                await cursor.execute(delete_query, (user_id, operation,
+                                                    ticker))
+                await db_connection.commit()
+
+                rows_affected = cursor.rowcount
+                print(rows_affected, type(rows_affected))
+                if rows_affected > 0:
+                    logger.info("Успешно удалено %s строк.", rows_affected)
+                    return f"Успешно удалено {rows_affected} строк."
+                else:
+                    return None
+
+    except aiosqlite.Error as m:
+        logger.error("Ошибка при подключении к базе данных или \
+выполнении запроса(удаление строки с сигналами пользователя): %s", m)
         return None

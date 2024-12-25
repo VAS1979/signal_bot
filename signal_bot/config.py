@@ -46,6 +46,7 @@ TYPE_LIST = ["buy", "sell"]
 
 # наименование таблицы со списком ценных бумаг
 TABLE_NAME = "shares"
+SIGNALS = "requested_data"
 
 # словарь приведения соответствия типов данных
 CONVERT_TYPES = {

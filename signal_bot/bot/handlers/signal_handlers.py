@@ -39,15 +39,13 @@ async def select_asset_name(message: Message, state: FSMContext):
 
     check_operation = await check_operation_type(message.text)
     if check_operation:
-        await state.update_data(signal_price=message.text)
+        await state.update_data(signal_type=message.text)
+        await state.set_state(UserSignal.asset_name)
+        reply_text = "Введите тикер"
     else:
         mess = "Некорректный тип операции, введите buy или sell"
         await message.answer(text=mess)
         return
-
-    await state.update_data(signal_type=message.text)
-    await state.set_state(UserSignal.asset_name)
-    reply_text = "Введите тикер"
     await message.reply(reply_text, reply_markup=types.ReplyKeyboardRemove())
 
 
@@ -86,6 +84,8 @@ async def complete_signal_create(message: Message, state: FSMContext):
     finish_massage = await generate_final_result(user_id, action,
                                                  entered_ticker, entered_price)
     await message.answer(finish_massage)
+    await message.answer("Выберите пункт меню",
+                         reply_markup=reply_main)
     await state.clear()
 
 
@@ -93,9 +93,7 @@ async def complete_signal_create(message: Message, state: FSMContext):
 async def signals_report(message: types.Message):
     """ . """
     user_id = message.from_user.id
-    print(user_id)
     mess = await generate_signals_report("requested_data", user_id)
-    print(mess)
     await message.answer(mess)
     await message.answer("Выберите пункт меню",
                          reply_markup=reply_main)

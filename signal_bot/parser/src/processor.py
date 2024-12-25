@@ -21,5 +21,5 @@ async def handle_call_chain(name_table, url, template):
 
     column_create = await create_column_typing(response, template)
     await create_db_tables(column_create[0], name_table, True)
-    await write_finished_data(column_create[1], name_table,
+    await write_finished_data(column_create[1], column_create[2], name_table,
                               securities_list)
