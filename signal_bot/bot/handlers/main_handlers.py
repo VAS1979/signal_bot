@@ -10,6 +10,7 @@ router = Router()
 
 @router.message(Command('start'))
 async def start_handler(message: types.Message):
-    """ Стартовое приветствие """
+    """ Стартовый хэндлер """
+
     await message.answer(f"Привет {message.from_user.first_name},\
     {message.from_user.id}", reply_markup=reply_main)

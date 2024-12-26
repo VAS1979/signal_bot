@@ -20,15 +20,16 @@ async def start_parsing():
     try:
         await request_share_sber(SHARE_SBER_URL)
     except (aiohttp.ClientError, IndexError, KeyError,
-            TypeError, ValueError, aiosqlite.Error) as s:
-        logger.error("Ошибка запроса тестовой цены, %s", s)
+            TypeError, ValueError, aiosqlite.Error) as m:
+        logger.error("Ошибка запроса тестовой цены, %s", m)
     else:
         for name_table, url, template in TYPES_SECURITIES:
             try:
                 await handle_call_chain(name_table, url, template)
             except (aiohttp.ClientError, IndexError, KeyError,
-                    TypeError, ValueError, aiosqlite.Error, AttributeError):
-                logger.error("Ошибка выполнения процесса")
+                    TypeError, ValueError, aiosqlite.Error,
+                    AttributeError) as e:
+                logger.error("Ошибка выполнения процесса, %s", e)
             finally:
                 logger.info("Цикл обработки запроса и записи в БД завершен\n")
 

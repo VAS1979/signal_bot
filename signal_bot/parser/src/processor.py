@@ -9,7 +9,7 @@ from signal_bot.repositories import (create_db_tables,
                                      write_finished_data)
 
 
-async def handle_call_chain(name_table, url, template):
+async def handle_call_chain(name_table: str, url: str, template):
     """ Обрабатывает цепочки вызовов """
 
     async with aiohttp.ClientSession() as session:

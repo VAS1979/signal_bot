@@ -6,7 +6,7 @@ from signal_bot.config import logger
 from signal_bot.parser.src.test_response import check_response
 
 
-async def request_share_sber(res):
+async def request_share_sber(res: str):
     """ Запрашивает котировки SBER """
 
     try:
@@ -15,17 +15,18 @@ async def request_share_sber(res):
                 content = await resp.json(content_type=None)
                 await check_response(content, "check")
             share_sber_price = content["marketdata"]["data"][0][1]
-            share_sber_price = 999  # заглушка ###############################
+#            share_sber_price = 999  # отключает проверку работы биржи
             if share_sber_price is None:
                 raise ValueError("MOEX не работает\n")
             logger.info("Проверка работы биржи успешна")
             return res
-    except (aiohttp.ClientError, IndexError, KeyError, TypeError, ValueError):
-        logger.error("Ошибка выполнения тестового запроса")
+    except (aiohttp.ClientError, IndexError, KeyError, TypeError,
+            ValueError) as e:
+        logger.error("Ошибка выполнения тестового запроса, %s", e)
         raise
 
 
-async def request_securities(client, url):
+async def request_securities(client, url: str):
     """ Запрос к MOEX """
 
     logger.info("Запрос парсера %s", url)

@@ -15,7 +15,8 @@ from signal_bot.config import logger, PORT, WEBHOOK_URL, WEBHOOK_PATH
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """ Запуск фоновых задач """
+    """ Запускает фоновы задачи """
+
     task = None
     try:
         logger.info("Запуск цикла сопрограмм\n")
@@ -39,7 +40,8 @@ app.include_router(router)
 
 @app.post(WEBHOOK_PATH)
 async def webhook(request: Request) -> None:
-    """ . """
+    """ Перенаправляет запросы с API телеграм бота """
+
     update = Update.model_validate(await request.json(), context={"bot": bot})
     await dp.feed_update(bot, update)
 

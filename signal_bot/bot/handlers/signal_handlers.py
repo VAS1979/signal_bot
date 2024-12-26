@@ -17,7 +17,8 @@ router = Router()
 
 class UserSignal(StatesGroup):
     """ Класс fsm состояния
-    форимрования сигнала пользователя """
+    формирования сигнала пользователя """
+
     user_id = State()
     signal_type = State()
     asset_name = State()
@@ -26,7 +27,9 @@ class UserSignal(StatesGroup):
 
 @router.message(F.text == "Создать сигнал")
 async def select_securitie_type(message: types.Message, state: FSMContext):
-    """ . """
+    """ Сохраняет в fsm id пользователя и
+     предлагает выбрать тип сигнала """
+
     await state.update_data(user_id=message.from_user.id)
     await state.set_state(UserSignal.signal_type)
     await message.answer("Выберите тип операции",
@@ -35,7 +38,8 @@ async def select_securitie_type(message: types.Message, state: FSMContext):
 
 @router.message(UserSignal.signal_type)
 async def select_asset_name(message: Message, state: FSMContext):
-    """ . """
+    """ Сохраняет в fsm тип сигнала и
+    предлагает ввести тикер """
 
     check_operation = await check_operation_type(message.text)
     if check_operation:
@@ -51,7 +55,9 @@ async def select_asset_name(message: Message, state: FSMContext):
 
 @router.message(UserSignal.asset_name)
 async def select_signal_price(message: Message, state: FSMContext):
-    """ . """
+    """ Проверяет введенный тикер, сохраняет
+    в fsm и предлагает ввести цену """
+
     asset_name = message.text.upper()
     table_name = TABLE_NAME
 
@@ -68,7 +74,10 @@ async def select_signal_price(message: Message, state: FSMContext):
 
 @router.message(UserSignal.signal_price, F.text)
 async def complete_signal_create(message: Message, state: FSMContext):
-    """ . """
+    """ Проверяет введенную цену на корректность, сохраняет
+    в fsm, передает сформированный сигнал для внесения в бд
+    и выводит сформированный сигнал пользователю """
+
     if message.text.isnumeric():
         await state.update_data(signal_price=message.text)
     else:
@@ -91,7 +100,9 @@ async def complete_signal_create(message: Message, state: FSMContext):
 
 @router.message(F.text == "Активные сигналы")
 async def signals_report(message: types.Message):
-    """ . """
+    """ Вызывает функцию для запроса всех сохраненных
+    сигналов пользователя и выводит их пользователю """
+
     user_id = message.from_user.id
     mess = await generate_signals_report("requested_data", user_id)
     await message.answer(mess)

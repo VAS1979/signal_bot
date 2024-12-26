@@ -16,6 +16,7 @@ router = Router()
 class DeleteUserSignal(StatesGroup):
     """ Класс fsm состояния форимрования
     удаления сигнала пользователя """
+
     d_user_id = State()
     d_signal_type = State()
     d_asset_name = State()
@@ -23,7 +24,8 @@ class DeleteUserSignal(StatesGroup):
 
 @router.message(F.text == "Удалить сигнал")
 async def select_del_securitie_type(message: types.Message, state: FSMContext):
-    """ . """
+    """ Выбирает сигнал пользователя для удаления """
+
     await state.update_data(d_user_id=message.from_user.id)
     await state.set_state(DeleteUserSignal.d_signal_type)
     await message.answer("Выберите тип операции",
@@ -32,7 +34,9 @@ async def select_del_securitie_type(message: types.Message, state: FSMContext):
 
 @router.message(DeleteUserSignal.d_signal_type)
 async def select_del_asset_name(message: Message, state: FSMContext):
-    """ . """
+    """ Сохраняет в fsm сигнал для удаления и
+    получает тикер для удаления """
+
     check_operation = await check_operation_type(message.text)
     if check_operation:
         await state.update_data(d_signal_type=message.text)
@@ -47,7 +51,9 @@ async def select_del_asset_name(message: Message, state: FSMContext):
 
 @router.message(DeleteUserSignal.d_asset_name)
 async def select_del_signal_price(message: Message, state: FSMContext):
-    """ . """
+    """ Сохраняет в fsm тикер для удаления и вызывает
+    функцию удаления сигнала пользователя из бд """
+
     asset_name = message.text.upper()
     table_name = TABLE_NAME
 

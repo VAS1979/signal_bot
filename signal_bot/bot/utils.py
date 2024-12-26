@@ -11,12 +11,15 @@ from signal_bot.repositories import (create_db_tables, delete_string_db,
 
 async def get_datetime():
     """ Запрашивает текущую дату и время """
+
     current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return current_datetime
 
 
-async def check_operation_type(operation):
-    """ . """
+async def check_operation_type(operation: str):
+    """ Проверяет правильность ввода
+    пользователем типа операции """
+
     if operation in TYPE_LIST:
         return operation
     else:
@@ -26,6 +29,7 @@ async def check_operation_type(operation):
 async def check_ticker_in_database(table_name: str, ticker: str):
     """ Проверяет наличие названия
     ценной бумаги в базе данных """
+
     lst = await make_selection_of_tickers(table_name)
 
     try:
@@ -42,9 +46,11 @@ async def check_ticker_in_database(table_name: str, ticker: str):
         logger.error("Ошибка проверки данных: %s", m)
 
 
-async def generate_user_signal(user_id, action, ticker, price):
+async def generate_user_signal(user_id: int, action: str, ticker: str,
+                               price: float):
     """ Создает список, формирующий сигнал
     пользователя для записи в бд """
+
     signal_list = []
 
     # добавляет дату и время
@@ -66,8 +72,11 @@ async def generate_user_signal(user_id, action, ticker, price):
     return signal_list
 
 
-async def generate_final_result(user_id, action, ticker, price):
-    """ . """
+async def generate_final_result(user_id: int, action: str, ticker: str,
+                                price: float):
+    """ Формирует и возвращает итоговое сообщение
+    по сформированному пользователем сигналу """
+
     # формирует список сигнала пользователя
     result = await generate_user_signal(user_id, action, ticker, price)
     # создает таблицу бд
@@ -83,8 +92,10 @@ async def generate_final_result(user_id, action, ticker, price):
     return message
 
 
-async def generate_signals_report(table_name, user_id):
-    """ . """
+async def generate_signals_report(table_name: str, user_id: int):
+    """ Собирает все сигналы пользователя,
+    формирует и возвращает итоговое сообщение """
+
     signal_list = await get_user_signal(table_name, user_id)
 
     if len(signal_list) == 0:
@@ -102,7 +113,7 @@ async def generate_signals_report(table_name, user_id):
     return user_message
 
 
-async def delete_signal(table, user_id, operation, ticker):
+async def delete_signal(table: str, user_id: int, operation: str, ticker: str):
     """ Удаляет строки с сигналами с заданными
     параметрами при их наличии """
 

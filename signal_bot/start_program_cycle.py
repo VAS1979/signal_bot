@@ -10,6 +10,7 @@ stop_event = asyncio.Event()
 
 async def run_background_tasks():
     """ Запускает фоновые задачи """
+
     while not stop_event.is_set():
         try:
             await start_parsing()

@@ -52,11 +52,11 @@ async def write_finished_data(column_count, string_count, table_name,
                 await db_connection.commit()
                 logger.info("Записи успешно добавлены в таблицу")
 
-    except aiosqlite.Error:
-        logger.error("Ошибка при подключении к базе данных")
+    except aiosqlite.Error as e:
+        logger.error("Ошибка при подключении к базе данных, %s", e)
 
 
-async def write_user_signal(table_name, data_list):
+async def write_user_signal(table_name: str, data_list):
     """ Записывает параметры сигналов,
     заданные пользователем """
 
@@ -74,11 +74,11 @@ async def write_user_signal(table_name, data_list):
                 logger.info("Записи успешно добавлены в таблицу, %s",
                             table_name)
 
-    except aiosqlite.Error as m:
-        logger.error("Ошибка при подключении к базе данных: %s", m)
+    except aiosqlite.Error as e:
+        logger.error("Ошибка при подключении к базе данных: %s", e)
 
 
-async def make_selection_of_tickers(table_name):
+async def make_selection_of_tickers(table_name: str):
     """ Собирает в список наименования ценных бумаг из таблицы базы данных """
 
     tickers = []
@@ -100,13 +100,13 @@ async def make_selection_of_tickers(table_name):
 Количество тикеров: %s", table_name, len(tickers))
                 return tickers
 
-    except aiosqlite.Error as m:
+    except aiosqlite.Error as e:
         logger.error("Ошибка при подключении к базе данных или \
-выполнении запроса: %s", m)
+выполнении запроса: %s", e)
         return None
 
 
-async def get_user_signal(table_name, user_id):
+async def get_user_signal(table_name: str, user_id: int):
     """ Делает выборку сигналов пользователя
     и формирует словарь с вложенными списками """
 
@@ -130,14 +130,16 @@ async def get_user_signal(table_name, user_id):
 Количество тикеров: %s", table_name, len(signals))
                 return signals
 
-    except aiosqlite.Error as m:
+    except aiosqlite.Error as e:
         logger.error("Ошибка при подключении к базе данных или \
-выполнении запроса: %s", m)
+выполнении запроса: %s", e)
         return None
 
 
-async def delete_string_db(table, user_id, operation, ticker):
+async def delete_string_db(table: str, user_id: int, operation: str,
+                           ticker: str):
     """ Удаляет строки с сигналами пользователя """
+
     try:
         async with aiosqlite.connect(DB_PATH) as db_connection:
             async with db_connection.cursor() as cursor:
@@ -150,14 +152,14 @@ async def delete_string_db(table, user_id, operation, ticker):
                 await db_connection.commit()
 
                 rows_affected = cursor.rowcount
-                print(rows_affected, type(rows_affected))
+
                 if rows_affected > 0:
                     logger.info("Успешно удалено %s строк.", rows_affected)
                     return f"Успешно удалено {rows_affected} строк."
                 else:
                     return None
 
-    except aiosqlite.Error as m:
+    except aiosqlite.Error as e:
         logger.error("Ошибка при подключении к базе данных или \
-выполнении запроса(удаление строки с сигналами пользователя): %s", m)
+выполнении запроса(удаление строки с сигналами пользователя): %s", e)
         return None
