@@ -15,7 +15,7 @@ async def request_share_sber(res: str):
                 content = await resp.json(content_type=None)
                 await check_response(content, "check")
             share_sber_price = content["marketdata"]["data"][0][1]
-#            share_sber_price = 999  # отключает проверку работы биржи
+            share_sber_price = 999  # отключает проверку работы биржи
             if share_sber_price is None:
                 raise ValueError("MOEX не работает\n")
             logger.info("Проверка работы биржи успешна")

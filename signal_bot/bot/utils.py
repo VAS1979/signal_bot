@@ -2,10 +2,9 @@
 
 from datetime import datetime
 
-from signal_bot.config import (REQUESTED_DATA, REQUESTED_DATA_COLUMN,
-                               TYPE_LIST, logger)
-from signal_bot.repositories import (create_db_tables, delete_string_db,
-                                     get_user_signal, write_user_signal,
+from signal_bot.config import (REQUESTED_DATA, TYPE_LIST, logger)
+from signal_bot.repositories import (delete_string_db, get_user_signal,
+                                     write_user_signal,
                                      make_selection_of_tickers)
 
 
@@ -79,8 +78,7 @@ async def generate_final_result(user_id: int, action: str, ticker: str,
 
     # формирует список сигнала пользователя
     result = await generate_user_signal(user_id, action, ticker, price)
-    # создает таблицу бд
-    await create_db_tables(REQUESTED_DATA_COLUMN, REQUESTED_DATA)
+
     # сохраняет сигнал в бд
     await write_user_signal(REQUESTED_DATA, result)
     # формирует сообщение пользователю
